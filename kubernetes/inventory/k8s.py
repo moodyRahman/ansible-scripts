@@ -24,9 +24,10 @@ outputs = json.loads(tf_out.stdout)
 
 
 hosts = outputs["k8-ips"]["value"]
-hosts = itertools.chain.from_iterable(hosts)
-hosts = itertools.chain.from_iterable(hosts)
+# hosts = itertools.chain.from_iterable(hosts)
+# hosts = itertools.chain.from_iterable(hosts)
 hosts = filter(lambda x: x != '127.0.0.1', hosts)
+# print(list(hosts))
 
 out = {"all":{"hosts":list(hosts)}}
 print(json.dumps(out))
