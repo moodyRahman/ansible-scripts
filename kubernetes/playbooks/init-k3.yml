@@ -2,7 +2,7 @@
 - name: Install k3
   hosts: control
   become: yes
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
 
@@ -33,7 +33,9 @@
 
     - name: Install open-iscsi (provides iscsiadm)
       ansible.builtin.package:
-        name: open-iscsi
+        name: 
+          - open-iscsi
+          - nfs-common
         state: present
 
     - name: Enable and start iscsid
@@ -66,10 +68,18 @@
     #   ansible.builtin.debug:
     #     var: ansible_facts
       # verbosity: 4 # Use verbosity: 4 to only show when running with -vvvv
+    - name: Debug k3s join token
+      ansible.builtin.debug:
+        msg: "Join token: {{ hostvars[groups['control'][0]]['k3s_join_token'] }}"
 
     - name: Install K3s agent with token
       shell: |
-        curl -sfL https://get.k3s.io | K3S_URL="https://server:6443" \
-        K3S_TOKEN="{{ hostvars[groups['control'][0]]['k3s_join_token'] }}" sh -
-      args:
-        creates: /var/lib/rancher/k3s/agent
+        curl -sfL https://get.k3s.io | K3S_URL=https://control:6443 \
+        K3S_TOKEN={{ hostvars[groups['control'][0]]['k3s_join_token'] }} sh -
+
+    - name: Install open-iscsi (provides iscsiadm)
+      ansible.builtin.package:
+        name: 
+          - open-iscsi
+          - nfs-common
+        state: present
